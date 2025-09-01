@@ -1,0 +1,27 @@
+//getParameterAsText
+
+let
+    // Returns a NameRange'd cell as a text value
+    // Remember to convert it to int or date as needed
+    ConvertNamedRangeToText = (rangeName as text) as nullable text =>
+    let
+        // Get the info
+        Source = try Excel.CurrentWorkbook(){[Name=rangeName]}[Content] otherwise null,
+        // If NamedRange doens't exist then return null otherwise the text value
+        textVal = if Source = null then null else
+            let
+                // Directly access the value from the single cell
+                val = Source{0}[Column1],
+                // Convert the value to text based on its type
+                result =
+                    if Value.Is(val, type date) then Date.ToText(val)
+                    else if Value.Is(val, type datetime) then DateTime.ToText(val)
+                    else if Value.Is(val, type number) then Number.ToText(val)
+                    else if Value.Is(val, type logical) then Logical.ToText(val)
+                    else Text.From(val)
+            in
+                result
+    in
+        textVal
+in
+    ConvertNamedRangeToText
