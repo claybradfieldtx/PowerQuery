@@ -1,0 +1,22 @@
+// GetNamedValue
+// Returns the first cell value of a named range, preserving its native type.
+// If the name/range doesn't exist or is empty, returns optional defaultValue (null if omitted).
+
+let
+    GetNamedValue = (rangeName as text, optional defaultValue as any) as nullable any =>
+    let
+        src   = try Excel.CurrentWorkbook(){[Name = rangeName]}[Content] otherwise null,
+        value =
+            if src = null or Table.RowCount(src) = 0 then
+                defaultValue
+            else
+                let
+                    rows     = Table.ToRows(src),
+                    firstRow = if List.IsEmpty(rows) then {} else rows{0},
+                    firstVal = if List.IsEmpty(firstRow) then defaultValue else firstRow{0}
+                in
+                    firstVal
+    in
+        value
+in
+    GetNamedValue
