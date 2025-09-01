@@ -1,0 +1,24 @@
+// GetNamedDateOrDateTime
+// Returns a date or datetime if the named cell holds one.
+// If the cell is a number, it is assumed to be an Excel serial date (days since 1899-12-30).
+// If missing/invalid, returns null.
+
+let
+    GetNamedDateOrDateTime = (rangeName as text) as nullable any =>
+    let
+        src   = try Excel.CurrentWorkbook(){[Name=rangeName]}[Content] otherwise null,
+        val   = if src = null or Table.RowCount(src)=0 then null else src{0}[Column1],
+        out   =
+            if val = null then
+                null
+            else if Value.Is(val, type date) or Value.Is(val, type datetime) then
+                val
+            else if Value.Is(val, type number) then
+                // treat as Excel serial date
+                Date.From(val)   // if you prefer datetime, use DateTime.From(val)
+            else
+                null
+    in
+        out
+in
+    GetNamedDateOrDateTime
